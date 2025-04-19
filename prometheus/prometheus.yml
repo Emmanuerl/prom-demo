@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          app: prometheus-server
+
+  - job_name: postgres
+    static_configs:
+      - targets: ["pg-exporter:9187"]
+        labels:
+          app: pg-server
+
+  - job_name: js-demo
+    static_configs:
+      - targets: ["js-demo:8080"]
+        labels:
+          app: js-demo
+
+  - job_name: golang-demo
+    static_configs:
+      - targets: ["golang-demo:8080"]
+        labels:
+          app: golang-demo
+
+  - job_name: python-demo
+    static_configs:
+      - targets: ["python-demo:8080"]
+        labels:
+          app: python-demo

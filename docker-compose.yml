@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: pg
+    environment:
+      - POSTGRES_USER=kruse
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=remontada
+      - PGDATA=/data/postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d remontada -U kruse"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - infra
+
+  pg-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: pg-exporter
+    ports:
+      - 9187:9187
+    environment:
+      - DATA_SOURCE_NAME=postgres://kruse:password@postgres:5432/remontada?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - infra
+
+  js-demo:
+    build: ./javascript
+    ports:
+      - 8082:8080
+    container_name: js-demo
+    networks:
+      - infra
+
+  golang-demo:
+    build: ./golang
+    ports:
+      - 8084:8080
+    container_name: golang-demo
+    networks:
+    - infra
+
+  python-demo:
+    build: ./python
+    ports:
+      - 8086:8080
+    container_name: python-demo
+    networks:
+      - infra
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - infra
+
+volumes:
+  postgres_data:
+  prometheus_data:
+
+
+networks:
+  infra:
+    driver: bridge

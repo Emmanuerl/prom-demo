@@ -1,0 +1,6 @@
+data
+node_modules
+__pycache__
+.idea
+.venv
+postgres.url
