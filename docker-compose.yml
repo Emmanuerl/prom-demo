@@ -33,6 +33,20 @@ services:
     restart: unless-stopped
     networks:
       - infra
+  
+  pg-exporter-remote:
+    image: prometheuscommunity/postgres-exporter
+    container_name: pg-exporter-remote
+    ports:
+      - 9188:9187
+    environment:
+      - DATA_SOURCE_NAME=postgresql://bsg_fraud:remontada@hackspace.notkruse.dev:5432/bsg?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - infra
 
   js-demo:
     build: ./javascript
@@ -71,10 +85,27 @@ services:
       - '--storage.tsdb.path=/prometheus'
     networks:
       - infra
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+    volumes:
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+    restart: unless-stopped
+    networks:
+      - infra
 
 volumes:
   postgres_data:
   prometheus_data:
+  grafana:
 
 
 networks:

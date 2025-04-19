@@ -1,0 +1,73 @@
+groups:
+  - name: instance-health
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "{{ $labels.job }} on {{ $labels.instance }} is not reachable for 1 minute."
+
+  - name: high-cpu
+    rules:
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[1m]) > 0.9
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is over 90% for the last 2 minutes."
+
+  - name: memory-alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: (node_memory_Active_bytes / node_memory_MemTotal_bytes) > 0.9
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is over 90% for the last 2 minutes."
+
+  - name: postgres-health
+    rules:
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL exporter down on {{ $labels.instance }}"
+          description: "PostgreSQL is not responding or the exporter is unreachable."
+
+      - alert: PostgresHighConnections
+        expr: pg_stat_activity_count > 90
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High PostgreSQL connection count on {{ $labels.instance }}"
+          description: "More than 90 active connections detected."
+
+  - name: prometheus-alerts
+    rules:
+      - alert: PrometheusTargetMissing
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Target {{ $labels.instance }} down"
+          description: "Prometheus target {{ $labels.job }} on {{ $labels.instance }} is down."
+
+      - alert: PrometheusHighScrapeDuration
+        expr: scrape_duration_seconds > 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High scrape duration for {{ $labels.job }}"
+          description: "Scrape duration > 1s for job {{ $labels.job }} ({{ $labels.instance }})."

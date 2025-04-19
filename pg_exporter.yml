@@ -1,0 +1,13 @@
+# targets:
+#   - data_source_name: "postgres://kruse:password@postgres:5432/remontada?sslmode=disable"
+#     alias: "local-remontada"
+
+#   - data_source_name: "postgresql://bsg_fraud:remontada@hackspace.notkruse.dev:5432/bsg?sslmode=disable"
+#     alias: "remote-hackspace"
+
+databases:
+  - data_source_name: "postgres://kruse:password@postgres:5432/remontada?sslmode=disable"
+    alias: "local-remontada"
+
+  - data_source_name: "postgresql://bsg_fraud:remontada@hackspace.notkruse.dev:5432/bsg?sslmode=disable"
+    alias: "remote-hackspace"
